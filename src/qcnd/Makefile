@@ -2,7 +2,7 @@ CFLAGS = -O -DDIMACS
 
 TARGETS = pargen  qfcgen
 
-.PHONY: all clean cleanmcf
+.PHONY: all clean
 
 %: %.c
 	$(CXX) -o $@ $<
@@ -13,7 +13,4 @@ all: $(TARGETS)
 clean : 
 	rm -f $(TARGETS)
 	$(MAKE) -C ./netgen clean
-
-cleanmcf:
-	rm -f *.par *.dmx *.qfc
 

@@ -10,7 +10,7 @@ function [Q, q, E, b, u] = loadMCF(matFilename)
 % u: vector for right box constraints Nx1
 MCF = load(matFilename);
 Q = MCF.Q';
-q = MCF.q;
+q = MCF.q';
 E = full(MCF.E);
 b = MCF.b';
 u = MCF.u';

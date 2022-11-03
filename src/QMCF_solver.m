@@ -1,61 +1,61 @@
-function [x_sol] = QMCF_solver(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm)
+function [x_best, exitFlag] = QMCF_solver(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, max_iter)
+   exitFlag=1;
    [m,n] = size(E);
    [U,Sigma,V,U_m] = compactSVD(E);
    %get the full Q through Q = diag(Q)
    %tutti i vettori sono presi come riga
-   if (b*U_m == 0)
-       disp('Ex=b unsatisfiable')
-       x_sol = zeros(n,1);
+   if (U_m'*b > 1.0000e-10)
+       disp('Ex=b unsatisfiable');
+       exitFlag = -1
        return 
    end
    x_sat_const_found = false;
    bar_mu = zeros(m,1); 
-   bar_x = getBoxedx(Q, q, E, b, u, bar_mu) % nx1
+   bar_x = getBoxedx(Q, q, E, b, u, bar_mu); % nx1
    x_best = zeros(n,1);
-   dual_f = @Dual_f
+   dual_f = @Dual_f;
    z = (E*bar_x)-b; %1xm
-   alpha = (z*bar_mu) - dual_f(bar_x, Q, bar_mu, E, b); %scalar
+   alpha = dot(z, bar_mu) - dual_f(bar_x, Q, q, bar_mu, E, b); %scalar
    B_z = [z]; % matix of vectors, mx1 ( mxi, with i num of iterations)
    B_alpha = [alpha]; %vector of scalars
    X = []; %matrix of vectors, nx1
    x_lin_const = V * pinv(Sigma) * U'*b;
+   num_iterations = 0;    
+   x_best = zeros(n,1); %set the new x feasbile found, so the best so far
 
-   num_iterations = 0;
+   LB = 0;
+   UB = 2*epsilon;
+   %LB = L (bar_x, Q, q, bar_mu, E, b);
+   %UB = f (bar_x, Q, q);
+
    
-   while(num_iterations < 1000 && x_sat_const_found == false)
-       [bar_x, bar_mu, x_sat_const_found] = main_structure(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, bar_mu, X); 
-       X = [X; bar_x];
-       num_iterations = num_iterations +1;
-   end
-
-    if(x_sat_const_found == false)
-        disp('x feasible not found, max num of iteration reached')
-        return;
-   else
-        disp('x feasible found')
-   end
-    
-   x_best = bar_x; %set the new x feasbile found, so the best so far
-
-   LB = L (bar_x, Q, q, bar_mu, E, b);
-   UB = f (bar_x, Q, q);
-
-    
    %reset the value for the new loop
-   x_sat_const_found == false;
+   x_sat_const_found = false;
    num_iterations = 0;
 
-   while(abs(UB-LB) >= epsilon && num_iterations < 1000)
-       [bar_x, bar_mu, x_sat_const_found] = main_structure(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, bar_mu, X);
+   while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
        
+       [bar_x, bar_mu, x_sat_const_found] = main_loop(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, bar_mu, X);
+       %{
        if(x_sat_const_found==true)
         [UB, LB, l, x_best] = update_values(bar_x, x_best);
         x_sat_const_found=false;
        end
-       
+       X = [X; bar_x];
+       %here should be done the update of the newer x value in the fun dual_f, but in the code
+       %is parametric so we just pass the new one to it
+       %}
+       num_iterations = num_iterations +1;
    end
-end
 
+   if (num_iterations == max_iter)
+       disp('Maximum iterations exceeded');
+       exitFlag = 2;
+       return 
+   end
+
+end
+   
 %%other tool functions
 
 
@@ -73,7 +73,7 @@ end
 
 %implement instruction from 21 to 34, WHEN CALLED IN FIRST LOOP
 
-function [bar_x, bar_mu, x_sat_const_found] = main_structure(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, bar_mu, X)
+function [bar_x, bar_mu, x_sat_const_found] = main_loop(Q, q, E, b, u, epsilon, l, lambda, best_l, m_lbm, bar_mu, X)
         x_sat_const_found = false;
 
         [bar_mu, theta] = LBM(bar_mu); %theta is a vector of scalars
@@ -133,19 +133,19 @@ function [x] = getBoxedx(Q, q, E, b, u, mu)
 end
 
 %parametric fun in mu
-function [dual_f] = Dual_f(x, Q, mu, E, b)
-    dual_f  = -x'*Q*x - q*x - mu'*(E*x - b) 
+function [dual_f] = Dual_f(x, Q, q, mu, E, b)
+    dual_f  = -x'*diag(Q)*x - q'*x - mu'*(E*x - b);
 end                                          % la parentesi va trasposta per moltiplicarla con mu
 
 %parametric fun in x and mu
 function [L_x_mu] = L (x, Q, q, mu, E, b)
-    L_x_mu = x'*Q*x + q*x + mu'*(E*x-b)
+    L_x_mu = x'*diag(Q)*x + q'*x + mu'*(E*x-b)
 end
 
 
 %parametric fun in x
 function [f_x] = f (x, Q, q)
-    f_x = x'*Q*x + q*x;
+    f_x = x'*diag(Q)*x + q'*x;
     return
 end
 

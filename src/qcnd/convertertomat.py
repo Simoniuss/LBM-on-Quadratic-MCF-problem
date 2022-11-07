@@ -79,6 +79,8 @@ for l in lines:
      # arc_index is an id for edges
      arc_index = arc_index+1
 
+b = -b
+
 # Number of disconnected nodes to check if the graph is connected
 disconnected_nodes = 0
 for col in E:

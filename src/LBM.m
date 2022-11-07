@@ -59,14 +59,12 @@ v = max(B_z'*(mu + d) - B_alpha);
 
 if f(mu+d) - f(mu) <= m*(v - f(mu))
     % SS (if not NS)
+    disp('SS')
+    disp(['d: ',num2str(norm(d))]);
     mu = mu+d;
+else
+    disp('NS');
 end
-
-% Compute new pair (z, alpha) and append to the bundle
-newz = B_z*theta;
-newalpha = B_alpha*theta;
-B_z = [ B_z newz ];
-B_alpha = [ B_alpha newalpha ];
       
 end
 

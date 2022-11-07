@@ -21,6 +21,7 @@ Objective = vVar;
 
 %options = sdpsettings('verbose', 0, 'solver','linprog');
 options = sdpsettings('verbose', 0, 'solver','mosek');
+%options = sdpsettings('verbose', 0);
 
 sol = optimize(Constraints,Objective, options);
 

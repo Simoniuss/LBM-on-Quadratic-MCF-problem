@@ -18,6 +18,7 @@ Objective = 0.5*norm(B_z*thetaVar)^2 + (l+B_alpha)*thetaVar;
 
 %options = sdpsettings('verbose', 0, 'solver','quadprog');
 options = sdpsettings('verbose', 0, 'solver','mosek');
+%options = sdpsettings('verbose', 0);
 
 sol = optimize(Constraints,Objective, options);
 theta = value(thetaVar);

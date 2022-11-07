@@ -39,12 +39,13 @@ UB = 2*epsilon;
 x_sat_const_found = false;
 num_iterations = 0;
 theta_case = 0;
+normd = 0;
 
-fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t Case \t ||New z|| \t New alpha \t step\n');
+fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t Case \t ||New z|| \t New alpha \t ||d|| \t step\n');
 
 while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
-    [bar_mu, theta, l, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
+    [bar_mu, theta, l, normd, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
     
     % Case 1: theta is a convex combinator, optimal x
     if(sum(theta)==1 && ~any(B_z * theta)) % Case 1
@@ -104,8 +105,8 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     num_iterations = num_iterations +1;
     
     
-    fprintf('%d \t %1.1e \t %1.1f \t %1.1e \t %1.1e \t %d \t %1.1e \t %1.1e \t %s\n', ...
-        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), theta_case, norm(newz), newalpha, steptype);
+    fprintf('%d \t %1.1e \t %1.1f \t %1.1e \t %1.1e \t %d \t %1.1e \t %1.1e \t %1.1e \t %s\n', ...
+        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), theta_case, norm(newz), newalpha, normd, steptype);
     
 end
 

@@ -20,7 +20,7 @@ QFC = sys.argv[1]+'.qfc'
 MCF = sys.argv[1]+'.mat'
 
 
-"""## Read .dmx which contains the problem definitions: m, n, E, b, u
+"""## Read .dmx which contains the problem definitions: m, n, E, b, u, q
 
 """
 
@@ -34,6 +34,7 @@ n = 0   #Number of edges
 b = []  #Vector with capacities of nodes
 E = []  #Incidence matrix of the graph
 u = []  #Right box constraints
+q = []  #linear costs for objective function
 
 arc_index = 0
 
@@ -50,6 +51,7 @@ for l in lines:
     b = np.zeros(m, dtype=float)
     E = np.zeros((m, n), dtype=float)
     u = np.zeros(n, dtype=float)
+    q = np.zeros(n, dtype=float)
 
     # n contains the properties of nodes
   elif l[0] == 'n':
@@ -71,6 +73,9 @@ for l in lines:
      # w[4] is the maximum capacity of the edge
      u[arc_index] = float(w[4])
 
+     # w[5] is the linear cost of the objective function q
+     q[arc_index] = float(w[5])
+
      # arc_index is an id for edges
      arc_index = arc_index+1
 
@@ -81,13 +86,12 @@ for col in E:
     disconnected_nodes = disconnected_nodes+1
 
 
-"""## Read .qfc which contains the problem definitions: Q, q"""
+"""## Read .qfc which contains Q for the objective function of the problem """
 
 
 with open(QFC) as f:
     lines = f.readlines()
 
-q = np.array(lines[1].split(), dtype=float)
 Q = np.array(lines[2].split(), dtype=float)
 
 

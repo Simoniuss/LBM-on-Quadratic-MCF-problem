@@ -1,10 +1,10 @@
 [Q, q, E, b, u] = loadMCF('MCF_1000.mat');
-[U, S, V, um] = compactSVD(E);
+%[U, S, V, um] = compactSVD(E);
 
-epsilon = 1.0e-6;
-l = -0.01;
+epsilon = 1e-6;
+l = -1e-10;
 lambda = 0.5;
-best_l = false;
+best_l = true;
 m = 0.5;
 max_iter = 100;
 

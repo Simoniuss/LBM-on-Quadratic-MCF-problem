@@ -1,4 +1,4 @@
-function [mu, theta, l] = LBM(f, mu, l, B_z, B_alpha, lambda, bestl, m)
+function [mu, theta, l, steptype] = LBM(f, x, mu, l, B_z, B_alpha, lambda, bestl, m)
 % Write some descriptions
 %
 %
@@ -11,7 +11,7 @@ if bestl
     % 0 means solution found, 2 means unbounded
     if exitflag == 0
         % Solution found, compute the best l
-        l = lambda*f(mu) + (1- lambda)*v;
+        l = lambda*f(x,mu) + (1 - lambda)*v;
         [theta, exitflag] = thetaDP(B_z, B_alpha, l);
         if exitflag ~= 0
             error('Error in computing theta LBM bestl');
@@ -28,7 +28,7 @@ if bestl
                     emptyMP = false;
                 % DP unbounded, change l
                 elseif exitflag == 2
-                    l = lambda*f(mu) - (1- lambda)*l;
+                    l = lambda*f(x,mu) - (1 - lambda)*l;
                 else
                     error('Error in computing theta LBM bestl unbounded');
                 end
@@ -47,7 +47,7 @@ else
             emptyMP = false;
             % DP unbounded, change l
         elseif exitflag == 2
-            l = lambda*f(mu) - (1- lambda)*l;
+            l = lambda*f(x,mu) - (1 - lambda)*l;
         else
             error('Error in computing theta LBM arbirtrary l');
         end
@@ -55,15 +55,15 @@ else
 end
 
 d = - B_z*theta;
-v = max(B_z'*(mu + d) - B_alpha);
+v = max(B_z'*(mu + d) - B_alpha');
 
-if f(mu+d) - f(mu) <= m*(v - f(mu))
+
+if f(x, mu+d) - f(x,mu) <= m*(v - f(x,mu))
     % SS (if not NS)
-    disp('SS')
-    disp(['d: ',num2str(norm(d))]);
+    steptype = 'SS';
     mu = mu+d;
 else
-    disp('NS');
+    steptype = 'NS';
 end
       
 end

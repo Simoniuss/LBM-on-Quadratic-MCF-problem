@@ -6,7 +6,7 @@ epsilon = 1e-6;
 l = 6.3282e+03;
 lambda = 0.5;
 best_l = false;
-m = 0.5;
+m = 0.1;
 max_iter = 100;
 
 [x_best, exitFlag] = QMCF_solver(Q, q, E, b, u, epsilon, l, lambda, best_l, m, max_iter);

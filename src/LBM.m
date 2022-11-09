@@ -1,4 +1,4 @@
-function [mu, theta, l, normd, steptype] = LBM(f, x, mu, l, B_z, B_alpha, lambda, bestl, m)
+function [mu, theta, l, d, steptype] = LBM(f, x, mu, l, B_z, B_alpha, lambda, bestl, m)
 % Write some descriptions
 %
 %
@@ -54,9 +54,10 @@ else
     end
 end
 
+
 d = - B_z*theta;
 v = max(B_z'*(mu + d) - B_alpha');
-normd = norm(d);
+
 
 if f(x, mu+d) - f(x,mu) <= m*(v - f(x,mu))
     % SS (if not NS)

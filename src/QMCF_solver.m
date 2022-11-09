@@ -39,16 +39,16 @@ UB = Inf;
 x_sat_const_found = false;
 num_iterations = 0;
 theta_case = 0;
-normd = 0;
+d = 0;
 
-fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t l \t Case \t ||New z|| \t New alpha \t ||d|| \t step\n');
+fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t l \t\t Case \t ||New z|| \t New alpha \t ||d|| \t\t step\n');
 
 while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
-    [bar_mu, theta, l, normd, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
+    [bar_mu, theta, l, d, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
     
     % Case 1: theta is a convex combinator, optimal x
-    if(sum(theta)==1 && all((B_z * theta)<eps)) % Case 1
+    if(sum(theta)==1 && all((B_z * theta)==0)) % Case 1
         theta_case = 1;
         bar_x = X * theta;
         x_sat_const_found = true;
@@ -61,9 +61,8 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
         end
         
         bar_x = X * theta_scaled;
-        bar_x = bar_x - V*V'*bar_x - x_lin_const;
+        bar_x = bar_x - V*V'*bar_x + x_lin_const;
         
-        disp(x_lin_const')
         
         if (all(bar_x >= 0) && all(bar_x <= u))
             theta_case = 2;
@@ -82,12 +81,14 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     if(x_sat_const_found)
         if isempty(x_best)
             x_best = bar_x;
+            UB = f(x_best);
+            LB = L(bar_x, bar_mu);
         else
             
             % Update UB and the level parameter
             if (f(bar_x) < f(x_best))
                 x_best = bar_x;
-                l = f (x_best);
+                l = f(x_best);
                 UB = l;
             end
         end
@@ -101,15 +102,20 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
     X = [X bar_x];
     % Compute new pair (z, alpha) and append to the bundle
-    newz = B_z*theta;
-    newalpha = B_alpha*theta;
+    if(sum(theta)==1)
+        newz = B_z*theta;
+        newalpha = B_alpha*theta;
+    else
+        newz = (E*bar_x)-b;
+        newalpha = dot(newz, bar_mu) - dualf(bar_x, bar_mu);
+    end
     B_z = [ B_z newz ];
     B_alpha = [ B_alpha newalpha ];
     num_iterations = num_iterations +1;
     
     
-    fprintf('%d \t %1.1e \t %1.1f \t %1.1e \t %1.1e \t %1.1e \t %d \t %1.1e \t %1.1e \t %1.1e \t %s\n', ...
-        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), l, theta_case, norm(newz), newalpha, normd, steptype);
+    fprintf('%d \t %1.1e \t %1.4e \t %1.4e \t %1.4e \t %1.4e \t %d \t %1.4e \t %1.1e \t %1.4e \t %s\n', ...
+        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), l, theta_case, norm(newz), newalpha, norm(d), steptype);
     
 end
 

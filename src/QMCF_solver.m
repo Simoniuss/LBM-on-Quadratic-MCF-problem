@@ -41,7 +41,7 @@ num_iterations = 0;
 theta_case = 0;
 normd = 0;
 
-fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t Case \t ||New z|| \t New alpha \t ||d|| \t step\n');
+fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t l \t Case \t ||New z|| \t New alpha \t ||d|| \t step\n');
 
 while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
@@ -105,8 +105,8 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     num_iterations = num_iterations +1;
     
     
-    fprintf('%d \t %1.1e \t %1.1f \t %1.1e \t %1.1e \t %d \t %1.1e \t %1.1e \t %1.1e \t %s\n', ...
-        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), theta_case, norm(newz), newalpha, normd, steptype);
+    fprintf('%d \t %1.1e \t %1.1f \t %1.1e \t %1.1e \t %1.1e \t %d \t %1.1e \t %1.1e \t %1.1e \t %s\n', ...
+        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), l, theta_case, norm(newz), newalpha, normd, steptype);
     
 end
 

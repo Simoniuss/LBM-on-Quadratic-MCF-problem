@@ -13,12 +13,17 @@ bundleSize = size(B_z,2);
 thetaVar = sdpvar(bundleSize,1);
 
 Constraints = thetaVar >= 0;
-
 Objective = 0.5*norm(B_z*thetaVar)^2 + (l+B_alpha)*thetaVar;
 
 %options = sdpsettings('verbose', 0, 'solver','quadprog');
 options = sdpsettings('verbose', 0, 'solver','mosek');
 %options = sdpsettings('verbose', 0);
+
+if bundleSize == 1
+    savecplexlp(Constraints, Objective, 'thetaDPData1');
+elseif bundleSize == 2
+    savecplexlp(Constraints, Objective, 'thetaDPData2');
+end
 
 sol = optimize(Constraints,Objective, options);
 theta = value(thetaVar);

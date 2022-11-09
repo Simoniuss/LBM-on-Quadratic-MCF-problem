@@ -30,7 +30,7 @@ X = bar_x; %matrix of vectors, nx1
 
 % Initialization of lower bound and upper bound
 LB = 0;
-UB = 2*epsilon;
+UB = Inf;
 %LB = L(bar_x, bar_mu);
 %UB = f(bar_x);
 
@@ -48,7 +48,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     [bar_mu, theta, l, normd, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
     
     % Case 1: theta is a convex combinator, optimal x
-    if(sum(theta)==1 && ~any(B_z * theta)) % Case 1
+    if(sum(theta)==1 && all((B_z * theta)<eps)) % Case 1
         theta_case = 1;
         bar_x = X * theta;
         x_sat_const_found = true;
@@ -59,8 +59,11 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
         if(sum(theta)~=1 && sum(theta)~=0)
             theta_scaled = theta/sum(theta);
         end
+        
         bar_x = X * theta_scaled;
         bar_x = bar_x - V*V'*bar_x - x_lin_const;
+        
+        disp(x_lin_const')
         
         if (all(bar_x >= 0) && all(bar_x <= u))
             theta_case = 2;

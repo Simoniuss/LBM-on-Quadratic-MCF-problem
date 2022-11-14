@@ -48,7 +48,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     [bar_mu, theta, l, d, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
     
     % Case 1: theta is a convex combinator, optimal x
-    if(sum(theta)==1 && all((B_z * theta)==0)) % Case 1
+    if(abs(sum(theta)-1)<=eps && all((B_z * theta)<eps)) % Case 1
         theta_case = 1;
         bar_x = X * theta;
         x_sat_const_found = true;
@@ -63,8 +63,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
         bar_x = X * theta_scaled;
         bar_x = bar_x - V*V'*bar_x + x_lin_const;
         
-        
-        if (all(bar_x >= 0) && all(bar_x <= u))
+        if (all(bar_x >= -eps) && all(bar_x <= u+eps))
             theta_case = 2;
             theta = theta_scaled;
             x_sat_const_found = true;
@@ -82,7 +81,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
         if isempty(x_best)
             x_best = bar_x;
             UB = f(x_best);
-            LB = L(bar_x, bar_mu);
+            LB = L(x_best, bar_mu);
         else
             
             % Update UB and the level parameter
@@ -102,12 +101,12 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
     X = [X bar_x];
     % Compute new pair (z, alpha) and append to the bundle
-    if(sum(theta)==1)
+    if(abs(sum(theta)-1)<=eps)
         newz = B_z*theta;
         newalpha = B_alpha*theta;
     else
         newz = (E*bar_x)-b;
-        newalpha = dot(newz, bar_mu) - dualf(bar_x, bar_mu);
+        newalpha = newz'*bar_mu - dualf(bar_x, bar_mu);
     end
     B_z = [ B_z newz ];
     B_alpha = [ B_alpha newalpha ];
@@ -115,7 +114,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
     
     fprintf('%d \t %1.1e \t %1.4e \t %1.4e \t %1.4e \t %1.4e \t %d \t %1.4e \t %1.1e \t %1.4e \t %s\n', ...
-        num_iterations, abs(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), l, theta_case, norm(newz), newalpha, norm(d), steptype);
+        num_iterations, norm(UB-LB), norm(theta), norm(bar_mu), norm(bar_x), l, theta_case, norm(newz), newalpha, norm(d), steptype);
     
 end
 

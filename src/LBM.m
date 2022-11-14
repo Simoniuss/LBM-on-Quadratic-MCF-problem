@@ -58,6 +58,9 @@ end
 d = - B_z*theta;
 v = max(B_z'*(mu + d) - B_alpha');
 
+%disp(f(x, mu+d) - f(x,mu))
+%disp(m*(v - f(x,mu)))
+
 
 if f(x, mu+d) - f(x,mu) <= m*(v - f(x,mu))
     % SS (if not NS)

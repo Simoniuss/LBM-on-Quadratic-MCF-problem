@@ -1,5 +1,7 @@
-[Q, q, E, b, u] = loadMCF('MCF_1000.mat');
-%simpleProblem;
+%[Q, q, E, b, u] = loadMCF('MCF_1000.mat');
+simpleProblem;
+
+u(1) = 1;
 
 xVar = sdpvar(size(q,1), 1);
 Constraints = [ E*xVar == b, 0 <= xVar, xVar <= u ];

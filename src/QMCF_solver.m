@@ -21,8 +21,8 @@ L = @(x, mu) f(x) + mu'*(E*x-b);
 x_lin_const = V * pinv(Sigma) * U'*b;
 
 % Initialization of the bundle
-dualf = @(barx, mu) -barx' * diag(Q) * barx - q' * barx - mu'*(E*barx - b);
-z = (E*bar_x)-b; %mx1
+dualf = @(barx, mu) -L(barx, mu);
+z = b - (E*bar_x); %mx1
 alpha = dot(z, bar_mu) - dualf(bar_x, bar_mu);
 B_z = z; % matrix of vectors, mx1 ( mxi, with i num of iterations)
 B_alpha = alpha; %vector of scalars
@@ -46,6 +46,8 @@ fprintf('iter \t gap \t ||theta|| \t ||bar_mu|| \t ||bar_x|| \t l \t\t Case \t |
 while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
     
     [bar_mu, theta, l, d, steptype] = LBM(dualf, bar_x, bar_mu, l, B_z, B_alpha, lambda, best_l, m_lbm);
+    
+    
     
     % Case 1: theta is a convex combinator, optimal x
     if(abs(sum(theta)-1)<=eps && all((B_z * theta)<eps)) % Case 1
@@ -105,7 +107,7 @@ while(abs(UB-LB) >= epsilon && num_iterations < max_iter)
         newz = B_z*theta;
         newalpha = B_alpha*theta;
     else
-        newz = (E*bar_x)-b;
+        newz = -(E*bar_x)+b;
         newalpha = newz'*bar_mu - dualf(bar_x, bar_mu);
     end
     B_z = [ B_z newz ];

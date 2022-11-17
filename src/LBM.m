@@ -21,7 +21,7 @@ if bestl
         if exitflag == 2
             emptyMP = true;
             while emptyMP % POTREBBE ESSERE NECESSARIO METTERE UN LIMITE SULLE ITERAZIONI
-                [theta, exitflag] = thetaDP(B_z, B_alpha, l);
+                [theta, exitflag] = thetaDP(B_z, B_alpha, l, mu, f(x,mu));
                 
                 % Solution found with the current l
                 if exitflag == 0
@@ -55,8 +55,12 @@ else
 end
 
 
-d = - B_z*theta;
+d =  -B_z*theta;
 v = max(B_z'*(mu + d) - B_alpha');
+%d1 = findD(B_z, B_alpha, l);
+
+%disp(norm(d))
+%disp(norm(d1))
 
 %disp(f(x, mu+d) - f(x,mu))
 %disp(m*(v - f(x,mu)))

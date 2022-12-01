@@ -1,4 +1,4 @@
-function [mu, exitflag] = LBM_v2(B_z, B_alpha, l, mu)
+function [mu, exitflag] = TR(B_z, B_alpha, d, mu)
 % Solve the DP for the LBM finding the weights theta used to build a
 % a feasible solution. This function solves the following problem:
 %       theta = arg min { 0.5*norm(sum(z^b*theta^b))^2 + sum((l+alpha^b)*theta), b \in B}
@@ -12,14 +12,15 @@ muSize = size(mu,1);
 
 % mu
 muVar = sdpvar(muSize,1);
+vVar = sdpvar(1,1);
 
-Constraints = [];
+Constraints = [norm(muVar - mu) <= d];
 for i = 1:bundleSize
-    Constraints = [Constraints, B_z(:,i)'*(muVar) - B_alpha(i) <= l];
+    Constraints = [Constraints, vVar >= B_z(:,i)'*(muVar) - B_alpha(i)];
 end
 
 %Constraints = B_z'*(muVar) - B_alpha <= l;
-Objective = 0.5*norm(muVar - mu)^2;
+Objective = vVar;
 
 %options = sdpsettings('verbose', 0, 'solver','quadprog');
 options = sdpsettings('verbose', 0, 'solver','mosek');

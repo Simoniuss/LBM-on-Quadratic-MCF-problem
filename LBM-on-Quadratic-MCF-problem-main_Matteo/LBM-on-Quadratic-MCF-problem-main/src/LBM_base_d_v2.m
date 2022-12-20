@@ -7,14 +7,16 @@ dVar = sdpvar(dSize,1);
 Constraints = [];
 
 %const of FRNAGIONI PBM version
-Constraints = [l * ones( size( B_z , 2 ) , 1 ) >=  B_alpha' + B_z' * (mu+dVar)];
+%Constraints = [l * ones( size( B_z , 2 ) , 1 ) >=  B_alpha' + B_z' * (mu+dVar)];
 
 %OK working, done with SIMO
-%Constraints = B_z'*(dVar) - B_alpha' <= l;
+Constraints = B_z'*(mu+dVar) - B_alpha' <= l;
 
 %rewrite of previous const done with SIMO
 %Constraints = [l * ones( size( B_z , 2 ) , 1 ) >=  B_z' * ( dVar) - B_alpha'];
 
+%try to rewrite it again
+%Constraints = [l  >= max(B_z' * ( mu+dVar) - B_alpha')];
 
 Objective = norm(dVar)^2 / 2;
 
